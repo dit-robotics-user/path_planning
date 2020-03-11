@@ -2,7 +2,7 @@
 #include <iostream>
 #include "std_msgs/String.h"
 
-#include "path_planning/path.h"
+#include <path_planning/path.h>
 #include "path_planning/AddTwoInts.h"
 #include <cstdlib>
 

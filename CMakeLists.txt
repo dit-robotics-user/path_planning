@@ -12,6 +12,8 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   message_generation
+  
+
 )
 
 ## System dependencies are found with CMake's conventions
@@ -48,6 +50,7 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
+
 add_message_files(
    FILES
    agent.msg
@@ -57,7 +60,7 @@ add_message_files(
    path_planning.msg
    string_with_header.msg
    
- )
+)
 
 ## Generate services in the 'srv' folder
 add_service_files(
@@ -109,10 +112,10 @@ add_service_files(
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES path_planning
+  INCLUDE_DIRS include
+  LIBRARIES path_planning
   CATKIN_DEPENDS roscpp rospy std_msgs message_runtime
-#  DEPENDS system_lib
+  DEPENDS system_lib
 )
 
 ###########
@@ -122,8 +125,9 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+  include
   ${catkin_INCLUDE_DIRS}
+ 
 )
 
 ## Declare a C++ library
@@ -212,18 +216,28 @@ include_directories(
 # catkin_add_nosetests(test)
 
 add_executable(path_planning_ src/path_planning_.cpp)
+add_dependencies(path_planning_ path_planning_gencpp)
 target_link_libraries(path_planning_ ${catkin_LIBRARIES})
 
+
 add_executable(goap src/goap.cpp)
+add_dependencies(goap path_planning_gencpp)
 target_link_libraries(goap ${catkin_LIBRARIES})
 
+
 add_executable(main src/main.cpp)
+add_dependencies(main path_planning_gencpp)
 target_link_libraries(main ${catkin_LIBRARIES})
 
+
 add_executable(st1_msg_ src/st1_msg_.cpp)
+add_dependencies(st1_msg_ path_planning_gencpp)
 target_link_libraries(st1_msg_ ${catkin_LIBRARIES})
 
+
 add_executable(st2_msg_ src/st2_msg_.cpp)
+add_dependencies(st2_msg_ path_planning_gencpp)
 target_link_libraries(st2_msg_ ${catkin_LIBRARIES})
+
 
 
