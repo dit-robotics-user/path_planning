@@ -1,2 +1,3 @@
 std_msgs/Header header
-uint8[10] mypos
+int16 mypos_x
+int16 mypos_y
