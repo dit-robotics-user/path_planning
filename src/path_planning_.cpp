@@ -9,11 +9,10 @@
 #include <vector>
 #include <cmath>
 
-
 using namespace std;
 
-#define mazeSizeX 62
-#define mazeSizeY 42
+#define mazeSizeX 41
+#define mazeSizeY 61
 #define robotSize 9
 
 void build_maze(int maze[mazeSizeX][mazeSizeY])   //build the maze
@@ -31,27 +30,35 @@ void build_maze(int maze[mazeSizeX][mazeSizeY])   //build the maze
     for(int i = 0; i < mazeSizeX; i++)
     {
         maze[i][0] = 0;
+        maze[i][1] = 0;
+        maze[i][2] = 0;
         maze[i][mazeSizeY-1] = 0;
+        maze[i][mazeSizeY-2] = 0;
+        maze[i][mazeSizeY-3] = 0;
     }
     //left and right walls
     for(int i = 0; i < mazeSizeY; i++)
     {
         maze[0][i] = 0;
+        maze[1][i] = 0;
+        maze[2][i] = 0;
         maze[mazeSizeX-1][i] = 0;
+        maze[mazeSizeX-2][i] = 0;
+        maze[mazeSizeX-3][i] = 0;
     }
 }
 
-void build_obstacles(int middlePoint[2], int wallThick, int maze[mazeSizeX][mazeSizeY]){
+void build_obstacles(int middlePoint[2], int wallThick, int maze[mazeSizeX][mazeSizeY], int weight){
     int middlePointX = middlePoint[0];
     int middlePointY = middlePoint[1];
     int halfWallThick = (wallThick-1)/2;
-    for(int j = middlePointY-halfWallThick; j < middlePointY+halfWallThick; j++)
+    for(int j = middlePointY-halfWallThick; j <= middlePointY+halfWallThick; j++)
     {
-        for(int i = middlePointX-halfWallThick; i < middlePointX + halfWallThick; i++)
+        for(int i = middlePointX-halfWallThick; i <= middlePointX + halfWallThick; i++)
         {
             if(i>0&&i<mazeSizeX&&j>0&&j<mazeSizeY)
             {
-                maze[i][j] = 0;
+                maze[i][j] = weight;
             }
         }
     }
@@ -239,8 +246,6 @@ vector<Node> FindSuccessors(int pos[2], int maze[mazeSizeX][mazeSizeY])
     return output;
 }
 
-
-
 double HeuristicFunctionManhattan(Node start, Node goal)
 {
     double cost = abs(start.PosX() - goal.PosX()) + abs(start.PosY() - goal.PosY());
@@ -254,8 +259,6 @@ double HeuristicFunctionDiagnal(Node start, Node goal)
     int dx = abs(start.PosX()-goal.PosX());
     int dy = abs(start.PosY()-goal.PosY());
     double cost = strait*(dx + dy) + (diagnal - 2*strait)*min(dx, dy);
-    //double cost = min(dx,dy)*D2+D*(max(dx,dy)-min(dx,dy));
-    //cout << "dx: " << dx << ",dy: " << dy << ",cost: " << cost << "\n";
     return cost;
 }
 
@@ -278,9 +281,9 @@ void PrintMaze(int start[2], int goal[2], int maze[mazeSizeX][mazeSizeY])      /
     maze[goal[0]][goal[1]] = 9;  //set maze goal point as 9
     char cmaze[mazeSizeX][mazeSizeY];
     //print out the maze
-    for(int j = 0; j < mazeSizeY; j++)
+    for(int j = mazeSizeY-1; j >= 0; j--)
     {
-        for(int i = 0; i < mazeSizeX; i++)
+        for(int i = 0; i <= mazeSizeX-1 ; i++)
         {
             if(maze[i][j] == 0)
             {
@@ -306,6 +309,11 @@ void PrintMaze(int start[2], int goal[2], int maze[mazeSizeX][mazeSizeY])      /
             {
                 cmaze[i][j] = 'G';
             }
+            else{
+                cmaze[i][j] = '%';
+            }
+            cmaze[40][60] = '@';
+            cmaze[0][0] = '@';
             cout << cmaze[i][j];
             cout << " ";
         }
@@ -317,9 +325,6 @@ void PrintMaze(int start[2], int goal[2], int maze[mazeSizeX][mazeSizeY])      /
 
 bool operator<(Node const& n1, Node const& n2)
 {
-    /*if(n1.priority_stamp!=n2.priority_stamp){
-        return n1.priority_stamp > n2.priority_stamp;
-    }*/
     if(abs(n1.f-n2.f)<0.000001){
         return n1.priority_stamp > n2.priority_stamp;
     }
@@ -357,14 +362,12 @@ vector<PosNode> AStar(int start_pos[2], int goal_pos[2], int maze[mazeSizeX][maz
     while(!priority_q.empty())
     {
         Node top_node = priority_q.top();
-
         PosNode pos;
         pos.pos[0] = top_node.PosX();
         pos.pos[1] = top_node.PosY();
         if(top_node.PosX() == goal.PosX() && top_node.PosY() == goal.PosY())
         {
             top_node.path.push_back(pos);
-            cout << "GOAL FOUND!!!!!!!!" << "\n";
             return top_node.path;
         }
         visited[top_node.PosX()][top_node.PosY()] = true;
@@ -381,7 +384,6 @@ vector<PosNode> AStar(int start_pos[2], int goal_pos[2], int maze[mazeSizeX][maz
                 succ.path.push_back(pos);
                 succ.h = HeuristicFunctionDiagnal(succ, goal);
                 succ.f = succ.g + succ.h;
-                //cout << "pos: (" << succ.PosX() << "," << succ.PosY() << ")" << " f: " << succ.f <<"\n";
                 priority_count ++;
                 succ.priority_stamp = priority_count;
                 priority_q.push(succ);
@@ -394,17 +396,13 @@ vector<PosNode> AStar(int start_pos[2], int goal_pos[2], int maze[mazeSizeX][maz
     return fail;
 }
 
-
-
-vector<PosNode> bresenhams_line_alg(vector<PosNode> new_path, int maze[mazeSizeX][mazeSizeY])
+vector<PosNode> bresenhams_line_alg(vector<PosNode> path, int maze[mazeSizeX][mazeSizeY])
 {
-    PosNode start = new_path.front();
-    vector<PosNode> line_of_sight;
+    PosNode start = path.front();
     vector<PosNode> output;
-    //output.push_back(start);
-    for(unsigned int i = 1; i < new_path.size(); i++)
+    for(unsigned int i = 1; i < path.size(); i++)
     {
-        PosNode goal = new_path[i];
+        PosNode goal = path[i];
         bool steep = false;
         bool walkable = true;
         if(abs(goal.pos[1]-start.pos[1])>abs(goal.pos[0]-start.pos[0]))
@@ -457,13 +455,14 @@ vector<PosNode> bresenhams_line_alg(vector<PosNode> new_path, int maze[mazeSizeX
                 error += 2*delta_x;
             }
         }
+
         if(walkable == false)
         {
-            output.push_back(new_path[i-1]);
-            start = new_path[i-1];
+            output.push_back(path[i-1]);
+            start = path[i-1];
         }
     }
-    output.push_back(new_path.back());
+    output.push_back(path.back());
     return output;
 }
 
@@ -479,7 +478,136 @@ int get_y(vector<PosNode> path){
     return y;
 }
 
+void prediction_of_movement(int maze[mazeSizeX][mazeSizeY],int obstacle_pos[2], int move_vector[2]){
+    int prediction_ratio = 2;
+    int prediction_point[2] = {obstacle_pos[0] + prediction_ratio*move_vector[0], obstacle_pos[1] + prediction_ratio*move_vector[1]};
+    int start[2] = {obstacle_pos[0], obstacle_pos[1]};
+    int goal[2] = {prediction_point[0], prediction_point[1]};
+    PosNode pos;
+    vector<PosNode> prediction;
+    bool steep = false;
+    bool walkable = true;
+    cout << "start: " << start[0] << "," << start[1] << " goal: " << goal[0] << "," << goal[1] << "\n";
+    if(abs(goal[1]-start[1])>abs(goal[0]-start[0]))
+    {
+        steep = true;
+    }
+    if(steep)
+    {
+        swap(start[0], start[1]);
+        swap(goal[0], goal[1]);
+    }
+    if(start[0]>goal[0])
+    {
+        swap(start[0], goal[0]);
+        swap(start[1], goal[1]);
+    }
+    int delta_x = goal[0] - start[0];
+    int delta_y = abs(goal[1] - start[1]);
+    int error = delta_x;
+    int y_step;
+    int y = start[1];
+    if(start[1] < goal[1])
+    {
+        y_step = 1;
+    }
+    else
+    {
+        y_step = -1;
+    }
+    for(int x=start[0]; x<=goal[0]; x++)
+    {
+        if(steep)
+        {
+            if(maze[y][x] == 0)
+            {
+                walkable = false;
+            }
+            cout << "x: " << y << " y: " << x << "\n";
+            maze[y][x] = 2;
+            pos.pos[0] = y;
+            pos.pos[1] = x;
+            prediction.push_back(pos);
+        }
+        else
+        {
+            if(maze[x][y] == 0)
+            {
+                walkable = false;
+            }
+            cout << "x: " << x << " y: " << y << "\n";
+            maze[x][y] = 2;
+            pos.pos[0] = x;
+            pos.pos[1] = y;
+            prediction.push_back(pos);
+        }
+        error -= 2*delta_y;
+        if(error <= 0)
+        {
+            y += y_step;
+            error += 2*delta_x;
+        }
+    }
+    int j = 100;
+    for(unsigned int i = 0; i < prediction.size(); i++)
+    {
 
+        build_obstacles(prediction[i].pos, robotSize, maze, 0);
+        j+=i*100;
+    }
+}
+
+float move_degree(int start_pos[2], vector<PosNode> path){
+    PosNode start;
+    start.pos[0] = start_pos[0];
+    start.pos[1] = start_pos[1];
+    PosNode goal = path[0];
+    float pi = 3.1415926;
+    int num = goal.pos[1] - start.pos[1];
+    int den = goal.pos[0] - start.pos[0];
+    float in_radius = 0;
+    float in_degree = 0;
+    if (num!=0 && den!=0){
+        float radius = atan((float)num / den);
+        if (num > 0 && den > 0){
+            in_radius = radius;
+        }
+        else if (num > 0 && den < 0){
+            in_radius = pi + radius;
+        }
+        else if (num < 0 && den < 0){
+            in_radius = pi + radius;
+        }
+        else{
+            in_radius = 2*pi + radius;
+        }
+    }
+    else if (num == 0 && den > 0){
+        in_radius = 0;
+    }
+    else if (num == 0 && den < 0){
+        in_radius = pi;
+    }
+    else if (num > 0 and den == 0){
+        in_radius = pi/2;
+    }
+    else if (num < 0 && den == 0){
+        in_radius = 3*pi/2;
+    }
+    else{
+        cout << "error\n";
+    }
+    in_degree = in_radius * 180 / pi;
+    cout << "start: (" << start.pos[0] << "," << start.pos[1] << ")\n";
+    cout << "goal: (" << goal.pos[0] << "," << goal.pos[1] << ")\n";
+    cout << "num: " << num << " den: " << den << " degree: " << in_degree << "\n";
+    return in_degree;
+}
+
+int big_to_small_maze(int big){
+    int small = round((double)big/50);
+    return small;
+}
 
 bool add(path_planning::path::Request  &req,
          path_planning::path::Response &res)
@@ -494,7 +622,7 @@ bool add(path_planning::path::Request  &req,
     build_obstacles(obstacle_b, robotSize, maze);
     build_obstacles(obstacle_c, robotSize, maze);
    
-    int start_pos[2] = {req.my_pos_x,req.my_pos_y};//<---my_pos
+    int start_pos[2] = {big_to_small_maze(req.my_pos_x),big_to_small_maze(req.my_pos_y)};//<---my_pos
     int goal_pos[2] = {req.goal_pos_x,req.goal_pos_y};//<---goap  
 
 
