@@ -59,13 +59,13 @@ int main(int argc, char **argv)
     ROS_ERROR("Failed to call service add_two_ints1");
     }
 
-    std_msgs::Int32MultiArray msg ;
-    msg[0] = 4000;
-    msg[1] = srv.response.next_pos_x;
-    msg[2] = srv.response.next_pos_y;
-    msg[3] = 90;
+    std_msgs::Int32MultiArray msg_ ;
+    msg_.data.push_back(4000);
+    msg_.data.push_back(srv.response.next_pos_x);
+    msg_.data.push_back(srv.response.next_pos_y);
+    msg_.data.push_back(90);
 
-    pub.publish(msg);
+    pub.publish(msg_);
 
     ros::spinOnce();
   }
