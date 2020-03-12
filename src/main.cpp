@@ -16,8 +16,8 @@ void callback(const std_msgs::Int32MultiArray::ConstPtr& msg)
 {
   my_pos_x_ = msg->data[0] ;
   my_pos_y_ = msg->data[1] ;
-  ROS_INFO("next_pos_x: %d", my_pos_x_);
-  ROS_INFO("next_pos_y: %d", my_pos_y_);
+  ROS_INFO("my_pos_x: %d", my_pos_x_);
+  ROS_INFO("my_pos_y: %d", my_pos_y_);
 }
 
 
