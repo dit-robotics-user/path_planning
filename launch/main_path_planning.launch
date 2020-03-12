@@ -9,6 +9,8 @@
 	</node>
 	<node pkg="path_planning" type="main" name="main" output="screen">
 	</node>
+	<node pkg="serial_node" type="serial_port" name="serial_port" output="screen">
+	</node>
 
 
 
