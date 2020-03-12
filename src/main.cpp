@@ -30,7 +30,7 @@ int main(int argc, char **argv)
 
   //test v1
   ros::Subscriber sub = n.subscribe("rxst1", 1, callback);
-  ros::Publisher pub = n.advertise<std_msg::Int32MultiArray>("txST1", 1);
+  ros::Publisher pub = n.advertise<std_msgs::Int32MultiArray>("txST1", 1);
 
   while(ros::ok()){
     ROS_INFO("333 ");
