@@ -630,8 +630,8 @@ bool add(path_planning::path::Request  &req,
     vector<PosNode> a = AStar(start_pos, goal_pos, maze);
     vector<PosNode> b = bresenhams_line_alg(a, maze);//--->output b
        
-    res.next_pos_x = get_x(b) ;
-    res.next_pos_y = get_y(b) ;
+    res.next_pos_x = get_x(b)*50 ;//--->for big map 
+    res.next_pos_y = get_y(b)*50 ;//--->for big map
 
 
     return true;
