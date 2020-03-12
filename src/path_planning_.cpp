@@ -612,15 +612,15 @@ int big_to_small_maze(int big){
 bool add(path_planning::path::Request  &req,
          path_planning::path::Response &res)
 {
-    
+    ROS_INFO("444 ");
     int maze[mazeSizeX][mazeSizeY];
     build_maze(maze); 
     int obstacle_a[2] = {req.enemy1_x,req.enemy1_y};//<---from camera
     int obstacle_b[2] = {req.enemy2_x,req.enemy2_y};//<---from camera
     int obstacle_c[2] = {req.ally_x,req.ally_y};//<---from camera 
-    build_obstacles(obstacle_a, robotSize, maze);
-    build_obstacles(obstacle_b, robotSize, maze);
-    build_obstacles(obstacle_c, robotSize, maze);
+    build_obstacles(obstacle_a, robotSize, maze, 0);
+    build_obstacles(obstacle_b, robotSize, maze, 0);
+    build_obstacles(obstacle_c, robotSize, maze, 0);
    
     int start_pos[2] = {big_to_small_maze(req.my_pos_x),big_to_small_maze(req.my_pos_y)};//<---my_pos
     int goal_pos[2] = {req.goal_pos_x,req.goal_pos_y};//<---goap  
