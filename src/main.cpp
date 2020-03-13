@@ -6,7 +6,6 @@
 #include "path_planning/path.h"
 #include "path_planning/path_planning.h"
 
-#include "path_planning/AddTwoInts.h"
 #include <cstdlib>
 
 int my_pos_x_ = 200 ;
@@ -27,11 +26,11 @@ int main(int argc, char **argv)
 
   ros::NodeHandle n;
   
-  ros::ServiceClient client = n.serviceClient<path_planning::path>("add_two_ints_1");
+  ros::ServiceClient client = n.serviceClient<path_planning::path>("path_plan");
 
 
   //test v1
-  ros::Subscriber sub = n.subscribe("rxst1", 1, callback);
+  ros::Subscriber sub = n.subscribe("rxST1", 1, callback);
   ros::Publisher pub = n.advertise<std_msgs::Int32MultiArray>("txST1", 1);
 
   while(ros::ok()){
@@ -60,7 +59,7 @@ int main(int argc, char **argv)
     }
     else
     {
-    ROS_ERROR("Failed to call service add_two_ints1");
+    ROS_ERROR("Failed to call service path plan");
     }
 
     std_msgs::Int32MultiArray msg_ ;

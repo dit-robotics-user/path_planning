@@ -645,7 +645,7 @@ int main(int argc, char **argv)
 
     ros::init(argc, argv, "path_planning_");
     ros::NodeHandle nh;
-    ros::ServiceServer service = nh.advertiseService("add_two_ints_1", add);
+    ros::ServiceServer service = nh.advertiseService("path_plan", add);
     ros::spin();
 
     return 0;
